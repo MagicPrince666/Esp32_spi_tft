@@ -1,7 +1,7 @@
 #include "lcd.h"
 #include "font.h"
 
-
+#define SPI
 
 _lcd_dev lcddev;
 
@@ -198,7 +198,7 @@ void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos)
 void LCD_Scan_Dir(uint8_t dir)
 {
 	uint16_t regval=0;
-	uint16_t dirreg=0;
+	//uint16_t dirreg=0;
 	uint16_t temp;  
 	switch(dir)
 	{
@@ -225,34 +225,28 @@ void LCD_Scan_Dir(uint8_t dir)
 			break;
 		case D2U_R2L://从下到上,从右到左
 			regval|=(1<<7)|(1<<6)|(1<<5); 
-			break;	 
-			  
-		LCD_WR_REG_DATA(dirreg,regval);
- 		if((regval&0X20)||lcddev.dir==1)
-		{
-			if(lcddev.width<lcddev.height)//交换X,Y
-			{
-				temp=lcddev.width;
-				lcddev.width=lcddev.height;
-				lcddev.height=temp;
- 			}
-		}else  
-		{
-			if(lcddev.width>lcddev.height)//交换X,Y
-			{
-				temp=lcddev.width;
-				lcddev.width=lcddev.height;
-				lcddev.height=temp;
- 			}
-		}  
-
-		LCD_WR_REG(lcddev.setxcmd); 
-		LCD_WR_DATA(0);
-		LCD_WR_DATA(lcddev.width-1);
-		LCD_WR_REG(lcddev.setycmd); 
-		LCD_WR_DATA(0);
-		LCD_WR_DATA(lcddev.height-1);  
+			break;	  
   	}
+	//LCD_WR_REG_DATA(dirreg,regval);
+	LCD_WR_REG(0x36); 
+	LCD_WR_DATA8(regval|0x08);
+	if((regval&0X20)||lcddev.dir==1)
+	{
+		if(lcddev.width<lcddev.height)//交换X,Y
+		{
+			temp=lcddev.width;
+			lcddev.width=lcddev.height;
+			lcddev.height=temp;
+		}
+	}else  
+	{
+		if(lcddev.width>lcddev.height)//交换X,Y
+		{
+			temp=lcddev.width;
+			lcddev.width=lcddev.height;
+			lcddev.height=temp;
+		}
+	} 
 }   
 
 void LCD_DrawPoint(uint16_t x,uint16_t y)
@@ -844,7 +838,8 @@ void showimage(uint16_t x,uint16_t y) //显示40*40图片
 
 #else //硬件SPI驱动
 
-extern spi_device_handle_t spi;
+//extern spi_device_handle_t spi;
+spi_device_handle_t spi;
 //uint16_t SPI_LCD_RAM[320*240];//显示缓存
 //Send a command to the LCD. Uses spi_device_transmit, which waits until the transfer is complete.
 void lcd_cmd(const uint8_t cmd) 
@@ -1026,61 +1021,56 @@ void LCD_SetCursor(uint16_t Xpos, uint16_t Ypos)
 void LCD_Scan_Dir(uint8_t dir)
 {
 	uint16_t regval=0;
-	uint16_t dirreg=0;
+	//uint16_t dirreg=0;
 	uint16_t temp;  
 	switch(dir)
 	{
 		case L2R_U2D://从左到右,从上到下
-			regval|=(0<<7)|(0<<6)|(0<<5); 
+			regval|=(0<<7)|(0<<6)|(0<<5)|(1<<4); 
 			break;
 		case L2R_D2U://从左到右,从下到上
-			regval|=(1<<7)|(0<<6)|(0<<5); 
+			regval|=(1<<7)|(0<<6)|(0<<5)|(1<<4); 
 			break;
 		case R2L_U2D://从右到左,从上到下
-			regval|=(0<<7)|(1<<6)|(0<<5); 
+			regval|=(0<<7)|(1<<6)|(0<<5)|(1<<4); 
 			break;
 		case R2L_D2U://从右到左,从下到上
-			regval|=(1<<7)|(1<<6)|(0<<5); 
-			break;	 
+			regval|=(1<<7)|(1<<6)|(0<<5)|(1<<4); 
+			break;	
+
 		case U2D_L2R://从上到下,从左到右
-			regval|=(0<<7)|(0<<6)|(1<<5); 
+			regval|=(0<<7)|(0<<6)|(1<<5)|(0<<4); 
 			break;
 		case U2D_R2L://从上到下,从右到左
-			regval|=(0<<7)|(1<<6)|(1<<5); 
+			regval|=(0<<7)|(1<<6)|(1<<5)|(0<<4); 
 			break;
 		case D2U_L2R://从下到上,从左到右
-			regval|=(1<<7)|(0<<6)|(1<<5); 
+			regval|=(1<<7)|(0<<6)|(1<<5)|(0<<4); 
 			break;
 		case D2U_R2L://从下到上,从右到左
-			regval|=(1<<7)|(1<<6)|(1<<5); 
-			break;	 
-			  
-		LCD_WR_REG_DATA(dirreg,regval);
- 		if((regval&0X20)||lcddev.dir==1)
-		{
-			if(lcddev.width<lcddev.height)//交换X,Y
-			{
-				temp=lcddev.width;
-				lcddev.width=lcddev.height;
-				lcddev.height=temp;
- 			}
-		}else  
-		{
-			if(lcddev.width>lcddev.height)//交换X,Y
-			{
-				temp=lcddev.width;
-				lcddev.width=lcddev.height;
-				lcddev.height=temp;
- 			}
-		}  
-
-		LCD_WR_REG(lcddev.setxcmd); 
-		LCD_WR_DATA(0);
-		LCD_WR_DATA(lcddev.width-1);
-		LCD_WR_REG(lcddev.setycmd); 
-		LCD_WR_DATA(0);
-		LCD_WR_DATA(lcddev.height-1);  
+			regval|=(1<<7)|(1<<6)|(1<<5)|(0<<4); 
+			break;
   	}
+	//LCD_WR_REG_DATA(dirreg,regval);
+	LCD_WR_REG(0x36); 
+	LCD_WR_DATA8(regval|0x08);
+	if((regval&0X20)||lcddev.dir==1)
+	{
+		if(lcddev.width<lcddev.height)//交换X,Y
+		{
+			temp=lcddev.width;
+			lcddev.width=lcddev.height;
+			lcddev.height=temp;
+		}
+	}else  
+	{
+		if(lcddev.width>lcddev.height)//交换X,Y
+		{
+			temp=lcddev.width;
+			lcddev.width=lcddev.height;
+			lcddev.height=temp;
+		}
+	}  
 }   
 
 void LCD_DrawPoint(uint16_t x,uint16_t y)
@@ -1108,7 +1098,7 @@ void LCD_Fast_DrawPoint(uint16_t x,uint16_t y,uint16_t color)
 //dir:0,竖屏；1,横屏
 void LCD_Display_Dir(uint8_t dir)
 {
-	if(dir==0)			//竖屏
+	if(dir < 4)			//竖屏
 	{
 		lcddev.dir=0;	//竖屏
 		lcddev.width=240;
@@ -1129,7 +1119,7 @@ void LCD_Display_Dir(uint8_t dir)
 		lcddev.setycmd=0X2B;  	 		
 		
 	} 
-	LCD_Scan_Dir(DFT_SCAN_DIR);	//默认扫描方向
+	LCD_Scan_Dir(dir);	//默认扫描方向
 }
 
 //设置窗口,并自动设置画点坐标到窗口左上角(sx,sy).
@@ -1190,7 +1180,16 @@ void LCD_delay(int t)
 }
 
 
-spi_device_handle_t spi;
+/**
+ * @brief motor moves in forward direction, with duty cycle = duty %
+ */
+void brushed_motor_forward(mcpwm_unit_t mcpwm_num, mcpwm_timer_t timer_num , float duty_cycle)
+{
+    mcpwm_set_signal_low(mcpwm_num, timer_num, MCPWM_OPR_B);
+    mcpwm_set_duty(mcpwm_num, timer_num, MCPWM_OPR_A, duty_cycle);
+    mcpwm_set_duty_type(mcpwm_num, timer_num, MCPWM_OPR_A, MCPWM_DUTY_MODE_0); //call this each time, if operator was previously in low/high state
+}
+
 void Lcd_Init(void)
 {  
 	esp_err_t ret; 
@@ -1198,9 +1197,10 @@ void Lcd_Init(void)
     gpio_set_direction(PIN_NUM_RST, GPIO_MODE_OUTPUT);
     gpio_set_direction(PIN_NUM_BCKL, GPIO_MODE_OUTPUT);
 
-    gpio_set_level(PIN_NUM_CS, 1);
+    //gpio_set_level(PIN_NUM_CS, 1);
     gpio_set_level(PIN_NUM_DC, 1);
     gpio_set_level(PIN_NUM_RST, 1);
+
     spi_bus_config_t buscfg={
         .miso_io_num=PIN_NUM_MISO,
         .mosi_io_num=PIN_NUM_MOSI,
@@ -1210,20 +1210,30 @@ void Lcd_Init(void)
 		//.max_transfer_sz = 320 * 240 * 2,
     }; 
     spi_device_interface_config_t devcfg={
-		.clock_speed_hz = 25000000,				// Initial clock out at 8 MHz
+		.clock_speed_hz = 32000000,				// Initial clock out at 8 MHz
 		.mode = 0,								// SPI mode 0
 		.spics_io_num = PIN_NUM_CS,				// set SPI CS pin
         .queue_size=BUF_LEN,                    //We want to be able to queue 7 transactions at a time
         .pre_cb=lcd_spi_pre_transfer_callback,  //Specify pre-transfer callback to handle D/C line
     };
     //Initialize the SPI bus
-    ret=spi_bus_initialize(HSPI_HOST, &buscfg, 1);
+    ret=spi_bus_initialize(VSPI_HOST, &buscfg, 1);
     assert(ret==ESP_OK);
     //Attach the LCD to the SPI bus
-    ret=spi_bus_add_device(HSPI_HOST, &devcfg, &spi);
+    ret=spi_bus_add_device(VSPI_HOST, &devcfg, &spi);
     assert(ret==ESP_OK);
-    
-	LCD_BL_0;
+
+	mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, GPIO_PWM0A_OUT);
+    mcpwm_config_t pwm_config;
+    pwm_config.frequency = 1000;    //frequency = 500Hz,
+    pwm_config.cmpr_a = 0;    //duty cycle of PWMxA = 0
+    //pwm_config.cmpr_b = 0;    //duty cycle of PWMxb = 0
+    pwm_config.counter_mode = MCPWM_UP_COUNTER;
+    pwm_config.duty_mode = MCPWM_DUTY_MODE_0;
+    mcpwm_init(MCPWM_UNIT_0, MCPWM_TIMER_0, &pwm_config);    //Configure PWM0A & PWM0B with above settings
+	brushed_motor_forward(MCPWM_UNIT_0, MCPWM_TIMER_0, 80.0);
+	
+	//LCD_BL_0;
 
     // LCD_REST_0;
 	// LCD_delay(100);
@@ -1354,8 +1364,9 @@ void Lcd_Init(void)
 
     LCD_WR_REG(0x29);    //Display on 
     LCD_WR_REG(0x2c);
-    LCD_BL_1;
-	LCD_Display_Dir(0);
+    //LCD_BL_1;
+	//LCD_Display_Dir(L2R_U2D);
+	LCD_Display_Dir(U2D_L2R);
 }
 //清屏函数
 //Color:要清屏的填充色
@@ -1502,7 +1513,6 @@ void LCD_ShowChar(uint16_t x,uint16_t y,char num,uint8_t size,uint8_t mode)
 		        if(temp&0x01)POINT_COLOR = colortemp;
 				else POINT_COLOR = BACK_COLOR;
 				SPI_LCD_RAM[t*xwidth + t1] = POINT_COLOR;	//先存起来再显示
-				//LCD_DrawPoint(x,y);	
 				temp>>=1;
 				y++;
 				if(y>=lcddev.height){POINT_COLOR=colortemp;return;}//超区域了

@@ -64,41 +64,38 @@ void MFRC_main()
         status = PcdSelect(g_ucTempbuf);//选定卡片
         if (status != MI_OK)
         {    continue;    }
-        printf("test 1\n");
          
         status = PcdAuthState(PICC_AUTHENT1A, 1, DefaultKey, g_ucTempbuf);//验证卡片密码
         if (status != MI_OK)
         {    continue;    }
-        printf("test 2\n");
          
         status = PcdWrite(1, data1);//写块
         if (status != MI_OK)
         {    continue;    }
-        printf("test 3\n");
         
         while(1)
 		{
-            printf("test n\n");
             status = PcdRequest(PICC_REQALL, g_ucTempbuf);//寻卡
             if (status != MI_OK)
             {   
-                InitializeSystem( );
+                InitializeSystem();
                 PcdReset();
                 PcdAntennaOff(); 
                 PcdAntennaOn(); 
                 continue;
             }
+
             status = PcdAnticoll(g_ucTempbuf);//防冲撞
             if (status != MI_OK)
             {    continue;    }
+
             status = PcdSelect(g_ucTempbuf);//选定卡片
             if (status != MI_OK)
             {    continue;    }
-            
+
             status = PcdAuthState(PICC_AUTHENT1A, 1, DefaultKey, g_ucTempbuf);//验证卡片密码
             if (status != MI_OK)
             {    continue;    }
-
 
             status = PcdValue(PICC_DECREMENT,1,data2);//扣款
             if (status != MI_OK)
@@ -111,6 +108,7 @@ void MFRC_main()
             status = PcdRead(2, g_ucTempbuf);//读块
             if (status != MI_OK)
             {    continue;    }
+
             printf("read block:");	//超级终端显示,
             for(i=0;i<16;i++)
             {

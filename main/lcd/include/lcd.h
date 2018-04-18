@@ -21,7 +21,10 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 
-#define SPI
+#include "driver/mcpwm.h"
+#include "soc/mcpwm_reg.h"
+#include "soc/mcpwm_struct.h"
+
 
  //定义LCD的尺寸	
 //extern uint16_t SPI_LCD_RAM[320*240];//缓存大小
@@ -50,6 +53,8 @@ extern _lcd_dev lcddev;	//管理LCD重要参数
 
 #define PIN_NUM_RST  17  	// GPIO used for RESET control
 #define PIN_NUM_BCKL  19     // GPIO used for backlight control
+
+#define GPIO_PWM0A_OUT 19   //Set GPIO 15 as PWM0A
 
 #define LCD_CS_1 gpio_set_level(PIN_NUM_CS, 1)
 #define LCD_CS_0 gpio_set_level(PIN_NUM_CS, 0)
@@ -95,6 +100,7 @@ void Address_set(unsigned int x1,unsigned int y1,unsigned int x2,unsigned int y2
 void LCD_WR_DATA8(const uint8_t da); //发送数据-8位参数
 void LCD_Fast_WR_Color_DATA16(uint16_t Color ,uint32_t len);
 void LCD_WR_DATA(uint16_t da);
+void LCD_Display_Dir(uint8_t dir);
 void LCD_Fast_WR_DATA(uint8_t* Color ,uint32_t len);
 void LCD_Fast_WR_DATA16(uint16_t* Color ,uint32_t len);
 void LCD_WR_REG(uint8_t da);
@@ -118,7 +124,7 @@ void LCD_ShowString(uint16_t x,uint16_t y,uint16_t width,uint16_t height,uint8_t
 //void showhanzi(unsigned int x,unsigned int y,unsigned char index);
 void showhanzi(unsigned int x,unsigned int y,char *p,uint8_t size);
 void showimage(uint16_t x,uint16_t y); //显示40*40图片
-
+void brushed_motor_forward(mcpwm_unit_t mcpwm_num, mcpwm_timer_t timer_num , float duty_cycle);
 
 //画笔颜色
 #define WHITE         	 0xFFFF

@@ -1,7 +1,0 @@
-# Automatically generated build file. Do not edit.
-COMPONENT_INCLUDES += $(PROJECT_PATH)/main/RC522/include
-COMPONENT_LDFLAGS += -L$(BUILD_DIR_BASE)/RC522 -lRC522
-COMPONENT_LINKER_DEPS += 
-COMPONENT_SUBMODULES += 
-COMPONENT_LIBRARIES += RC522
-component-RC522-build: 
