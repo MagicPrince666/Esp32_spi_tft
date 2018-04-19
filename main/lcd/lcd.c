@@ -1190,6 +1190,8 @@ void brushed_motor_forward(mcpwm_unit_t mcpwm_num, mcpwm_timer_t timer_num , flo
     mcpwm_set_duty_type(mcpwm_num, timer_num, MCPWM_OPR_A, MCPWM_DUTY_MODE_0); //call this each time, if operator was previously in low/high state
 }
 
+extern spi_device_handle_t tp_spi;
+
 void Lcd_Init(void)
 {  
 	esp_err_t ret; 
@@ -1222,6 +1224,17 @@ void Lcd_Init(void)
     //Attach the LCD to the SPI bus
     ret=spi_bus_add_device(VSPI_HOST, &devcfg, &spi);
     assert(ret==ESP_OK);
+
+
+	// spi_device_interface_config_t devcfg_1={
+	// 	.clock_speed_hz = 4000000,				// Initial clock out at 8 MHz
+	// 	.mode = 3,								// SPI mode 0
+	// 	.spics_io_num = PIN_NUM_TCS,			// set SPI CS pin
+    //     .queue_size=7,                    //We want to be able to queue 7 transactions at a time
+    // };
+    // //Attach the touch to the SPI bus
+    // ret=spi_bus_add_device(VSPI_HOST, &devcfg_1, &tp_spi);
+    // assert(ret==ESP_OK);
 
 	mcpwm_gpio_init(MCPWM_UNIT_0, MCPWM0A, GPIO_PWM0A_OUT);
     mcpwm_config_t pwm_config;
@@ -1365,8 +1378,9 @@ void Lcd_Init(void)
     LCD_WR_REG(0x29);    //Display on 
     LCD_WR_REG(0x2c);
     //LCD_BL_1;
-	//LCD_Display_Dir(L2R_U2D);
-	LCD_Display_Dir(U2D_L2R);
+	LCD_Display_Dir(R2L_U2D);
+	//LCD_Display_Dir(U2D_L2R);
+	LCD_Clear(WHITE);
 }
 //清屏函数
 //Color:要清屏的填充色
@@ -1553,7 +1567,7 @@ void LCD_ShowChar(uint16_t x,uint16_t y,char num,uint8_t size,uint8_t mode)
 			}  	 
 	    }     
 	}
-	LCD_Color_Fill(x,y,x+xwidth-1,y+size-1,SPI_LCD_RAM);
+	LCD_Color_Fill(x - size/2,y0,x-1,y+size-1,SPI_LCD_RAM);
 	POINT_COLOR=colortemp;	    	   	 	  
 } 
 

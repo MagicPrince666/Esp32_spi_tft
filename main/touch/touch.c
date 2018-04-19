@@ -559,6 +559,7 @@ uint8_t TP_Init(void)
 
 	//gpio_set_direction(PIN_NUM_TCS, GPIO_MODE_OUTPUT);
     gpio_set_direction(PIN_NUM_TIRQ, GPIO_MODE_INPUT);
+	gpio_set_level(PIN_NUM_TIRQ, 1);
 
     spi_device_interface_config_t devcfg={
 		.clock_speed_hz = 4000000,				// Initial clock out at 8 MHz

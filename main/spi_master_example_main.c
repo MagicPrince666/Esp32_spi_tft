@@ -53,9 +53,11 @@
    If you'd rather not, just change the below entries to strings with
    the config you want - ie #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_ESP_WIFI_MODE_AP   0 //TRUE:AP FALSE:STA
+#define EXAMPLE_ESP_WIFI_MODE_AP   1 //TRUE:AP FALSE:STA
 #define EXAMPLE_ESP_WIFI_SSID      "XAircraft"
 #define EXAMPLE_ESP_WIFI_PASS      "5HK72E83CH"
+#define EXAMPLE_ESP_WIFI_AP_SSID      "PRINCE"
+#define EXAMPLE_ESP_WIFI_AP_PASS      "67123236"
 #define EXAMPLE_MAX_STA_CONN       5
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -110,14 +112,14 @@ void wifi_init_softap()
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     wifi_config_t wifi_config = {
         .ap = {
-            .ssid = EXAMPLE_ESP_WIFI_SSID,
-            .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
-            .password = EXAMPLE_ESP_WIFI_PASS,
+            .ssid = EXAMPLE_ESP_WIFI_AP_SSID,
+            .ssid_len = strlen(EXAMPLE_ESP_WIFI_AP_SSID),
+            .password = EXAMPLE_ESP_WIFI_AP_PASS,
             .max_connection = EXAMPLE_MAX_STA_CONN,
             .authmode = WIFI_AUTH_WPA_WPA2_PSK
         },
     };
-    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+    if (strlen(EXAMPLE_ESP_WIFI_AP_PASS) == 0) {
         wifi_config.ap.authmode = WIFI_AUTH_OPEN;
     }
 
@@ -165,19 +167,19 @@ static void display_task()
         switch(i)
         {
             case 0:LCD_Clear(RED);BACK_COLOR = WHITE;POINT_COLOR = BLACK;
-            LCD_ShowString(1,0,lcddev.width,16,16," red ");
+            LCD_ShowString(0,0,40,16,16," red ");
             break;
 
             case 1:LCD_Clear(GREEN);BACK_COLOR = WHITE;POINT_COLOR = BLACK;
-            LCD_ShowString(1,0,lcddev.width,16,16,"green");
+            LCD_ShowString(0,0,40,16,16,"green");
             break;
 
             case 2:LCD_Clear(BLUE);BACK_COLOR = WHITE;POINT_COLOR = BLACK;
-            LCD_ShowString(1,0,lcddev.width,16,16," blue");
+            LCD_ShowString(0,0,40,16,16," blue");
             break;
 
             case 3:LCD_Clear(WHITE);BACK_COLOR = WHITE;POINT_COLOR = BLACK;
-            LCD_ShowString(1,0,lcddev.width,16,16,"white");
+            LCD_ShowString(0,0,40,16,16,"white");
             break;
         }
         i++;
@@ -263,11 +265,12 @@ void app_main(void)
     Lcd_Init();   //tft初始化
     printf("lcd init OK!\n");
     
-    //LCD_Display_Dir(L2R_U2D);
+    LCD_Display_Dir(R2L_U2D);
     tp_dev.init();//触摸初始化
     //LCD_Display_Dir(U2D_L2R);
     
     xTaskCreate(display_task, "lcd_display_task", 1500, NULL, 10, NULL);
-    //xTaskCreate(wifi_task, "sta_wifi_task", 1500, NULL, 11, NULL);
+    //xTaskCreate(wifi_task, "sta_wifi_task", 2048, NULL, 11, NULL);
     //xTaskCreate(MFRC_main, "NFC_rc522_task", 1500, NULL, 10, NULL);
+    
 }
